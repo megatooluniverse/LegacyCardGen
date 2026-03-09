@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Card 2.0 – Social Era Edition</title>
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --bg-dark: #0a0a0c;
+            --bg-card: #141417;
+            --text-main: #f5f5f7;
+            --text-muted: #8e8e93;
+            --gold-accent: #d4af37;
+            --gold-grad: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+            --font-serif: 'Georgia', 'Times New Roman', serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: var(--font-serif); font-weight: 400; }
+        .gold-text {
+            background: var(--gold-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: fadeIn 1s forwards; }
+
+        /* --- BUTTONS --- */
+        button {
+            background: var(--gold-grad);
+            color: #000;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+        button.outline {
+            background: transparent;
+            color: var(--gold-accent);
+            border: 1px solid var(--gold-accent);
+            -webkit-text-fill-color: initial;
+        }
+        button.outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* --- LAYOUT SECTIONS --- */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* --- SECTION 1: HERO --- */
+        #hero { text-align: center; }
+        #hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 1rem; line-height: 1.2; }
+        #hero p { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-muted); margin-bottom: 2.5rem; font-weight: 300; }
+
+        /* --- SECTION 2: FORM --- */
+        #form-section { background: linear-gradient(to bottom, var(--bg-dark), var(--bg-card)); }
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255,255,255,0.02);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.85rem; color: var(--gold-accent); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;}
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-main);
+            font-size: 1rem;
+            padding: 8px 0;
+            transition: var(--transition);
+            font-family: var(--font-sans);
+        }
+        input:focus { outline: none; border-bottom-color: var(--gold-accent); }
+        .achievements-wrapper { padding-left: 1rem; border-left: 1px solid rgba(212,175,55,0.3); margin-bottom: 1.5rem;}
+        
+        /* --- SECTION 3: RESULT --- */
+        #result-section { display: none; padding-top: 4rem; padding-bottom: 4rem; }
+        .dashboard {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        @media(min-width: 768px) {
+            .dashboard { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* METERS */
+        .meters { display: flex; flex-direction: column; gap: 1.5rem; }
+        .meter-box {
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .meter-title { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .meter-val { font-size: 1.5rem; font-family: var(--font-serif); color: var(--gold-accent); }
+        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); margin-top: 10px; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--gold-grad); width: 0%; transition: width 1s ease-out; }
+
+        /* CARD */
+        .card-wrapper { display: flex; justify-content: center; }
+        .legacy-card {
+            width: 100%;
+            max-width: 360px;
+            aspect-ratio: 9/16;
+            background: linear-gradient(160deg, #1a1a1e 0%, #0a0a0c 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 40px rgba(212, 175, 55, 0.05);
+            overflow: hidden;
+        }
+        .legacy-card::before, .legacy-card::after {
+            content: ''; position: absolute; width: 100px; height: 1px; background: var(--gold-grad);
+        }
+        .legacy-card::before { top: 20px; left: 50%; transform: translateX(-50%); }
+        .legacy-card::after { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        
+        .card-intro { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; font-style: italic; }
+        .card-name { font-size: 2rem; font-family: var(--font-serif); font-weight: bold; margin-bottom: 2rem; color: var(--text-main); }
+        .card-achievements { list-style: none; margin-bottom: 2rem; width: 100%; text-align: left; padding: 0 1rem;}
+        .card-achievements li { font-size: 0.9rem; margin-bottom: 0.8rem; position: relative; padding-left: 1.2rem; color: #d1d1d6; }
+        .card-achievements li::before { content: '✦'; position: absolute; left: 0; color: var(--gold-accent); font-size: 0.8rem; }
+        .card-lesson { font-family: var(--font-serif); font-size: 1.1rem; color: var(--gold-accent); font-style: italic; margin-bottom: 2rem; line-height: 1.4; }
+        .card-dream { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* CONTROLS */
+        .controls { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+        .disclaimer { font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 2rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+    <section id="hero">
+        <h1 class="reveal">What Will People<br><span class="gold-text">Remember About You?</span></h1>
+        <p class="reveal" style="animation-delay: 0.2s;">Build your digital legacy card in seconds.</p>
+        <button class="reveal" style="animation-delay: 0.4s;" onclick="scrollToForm()">Create My Legacy</button>
+    </section>
+
+    <section id="form-section">
+        <div class="form-container reveal">
+            <form id="legacy-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" maxlength="30" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Current Age</label>
+                    <input type="number" id="age" min="1" max="120" required placeholder="30">
+                </div>
+                
+                <label>Top 3 Achievements</label>
+                <div class="achievements-wrapper">
+                    <div class="form-group">
+                        <input type="text" id="ach1" maxlength="50" required placeholder="E.g., Built a successful business">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="ach2" maxlength="50" placeholder="E.g., Traveled to 20 countries (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="ach3" maxlength="50" placeholder="E.g., Raised a beautiful family (Optional)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>One Core Life Lesson</label>
+                    <input type="text" id="lesson" maxlength="60" required placeholder="Time is the only currency that matters.">
+                </div>
+                <div class="form-group">
+                    <label>Your Biggest Dream</label>
+                    <input type="text" id="dream" maxlength="50" required placeholder="To leave the world better than I found it.">
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: 1rem;">Generate My Legacy Card</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="result-section">
+        <div class="dashboard">
+            <div>
+                <div class="meters">
+                    <div class="meter-box">
+                        <div class="meter-title">Impact Score</div>
+                        <div class="meter-val" id="impact-title">Starter</div>
+                    </div>
+                    <div class="meter-box">
+                        <div class="meter-title">Life Journey Progress</div>
+                        <div class="meter-val"><span id="life-percentage">0</span>%</div>
+                        <div class="progress-bar"><div class="progress-fill" id="life-fill"></div></div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">Based on an 80-year lifespan.</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="toggle-future-btn" class="outline" onclick="toggleFuture()">View 5 Years Later</button>
+                    <button onclick="downloadCard()">Download as Image</button>
+                </div>
+                <div class="disclaimer">For reflection and motivational purposes only. Created entirely in your browser.</div>
+            </div>
+
+            <div class="card-wrapper">
+                <div class="legacy-card" id="card-dom">
+                    <div class="card-intro" id="card-intro-text">"If I disappear today,<br>Remember me as..."</div>
+                    <div class="card-name gold-text" id="card-name">Name</div>
+                    <ul class="card-achievements" id="card-achievements"></ul>
+                    <div class="card-lesson" id="card-lesson">"Lesson"</div>
+                    <div class="card-dream" id="card-dream">Dream</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let userData = {
+            name: '', age: 0,
+            achievements: [],
+            lesson: '', dream: ''
+        };
+        let isFutureMode = false;
+
+        // --- UTILS ---
+        function scrollToForm() {
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- CORE LOGIC ---
+        document.getElementById('legacy-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Gather Data
+            userData.name = document.getElementById('name').value.trim();
+            userData.age = parseInt(document.getElementById('age').value);
+            
+            const a1 = document.getElementById('ach1').value.trim();
+            const a2 = document.getElementById('ach2').value.trim();
+            const a3 = document.getElementById('ach3').value.trim();
+            userData.achievements = [a1, a2, a3].filter(a => a !== '');
+            
+            userData.lesson = document.getElementById('lesson').value.trim();
+            userData.dream = document.getElementById('dream').value.trim();
+            
+            // Reset state if regenerating
+            isFutureMode = false;
+            document.getElementById('toggle-future-btn').innerText = "View 5 Years Later";
+            
+            calculateMeters();
+            renderCard();
+
+            // Show Result Section and Scroll
+            const resultSec = document.getElementById('result-section');
+            resultSec.style.display = 'flex';
+            resultSec.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function calculateMeters() {
+            // Impact Score
+            const count = userData.achievements.length;
+            let title = "Starter";
+            if(count === 2) title = "Growing Legacy";
+            if(count >= 3) title = "Future Icon";
+            document.getElementById('impact-title').innerText = title;
+
+            // Life Progress
+            const lifeMax = 80;
+            let percentage = (userData.age / lifeMax) * 100;
+            if(percentage > 100) percentage = 100;
+            
+            document.getElementById('life-percentage').innerText = percentage.toFixed(1);
+            setTimeout(() => {
+                document.getElementById('life-fill').style.width = percentage + '%';
+            }, 500);
+        }
+
+        function toggleFuture() {
+            isFutureMode = !isFutureMode;
+            const btn = document.getElementById('toggle-future-btn');
+            btn.innerText = isFutureMode ? "Return to Present" : "View 5 Years Later";
+            renderCard();
+        }
+
+        function renderCard() {
+            const ageToDisplay = isFutureMode ? userData.age + 5 : userData.age;
+            
+            document.getElementById('card-intro-text').innerHTML = isFutureMode 
+                ? `"5 Years Later...<br>Remember me as..."` 
+                : `"If I disappear today,<br>Remember me as..."`;
+                
+            document.getElementById('card-name').innerText = userData.name;
+            
+            const ul = document.getElementById('card-achievements');
+            ul.innerHTML = '';
+            
+            const prefixes = ["Mastered: ", "Scaled: ", "Expanded: "];
+            userData.achievements.forEach((ach, index) => {
+                const li = document.createElement('li');
+                li.innerText = isFutureMode ? (prefixes[index % prefixes.length] + ach) : ach;
+                ul.appendChild(li);
+            });
+
+            document.getElementById('card-lesson').innerText = `"${userData.lesson}"`;
+            document.getElementById('card-dream').innerText = userData.dream;
+        }
+
+        // --- NATIVE CANVAS DOWNLOAD ENGINE ---
+        // Generates the image purely in-browser without external libraries
+        function downloadCard() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1920; // 9:16 Aspect Ratio
+            const ctx = canvas.getContext('2d');
+
+            // 1. Draw Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
+            bgGrad.addColorStop(0, '#1a1a1e');
+            bgGrad.addColorStop(1, '#0a0a0c');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Draw Borders / Accents
+            const accentGrad = ctx.createLinearGradient(0, 0, 1080, 0);
+            accentGrad.addColorStop(0, '#bf953f');
+            accentGrad.addColorStop(0.5, '#fcf6ba');
+            accentGrad.addColorStop(1, '#b38728');
+            
+            ctx.strokeStyle = accentGrad;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(60, 60, 960, 1800); // Inner border
+
+            ctx.fillStyle = accentGrad;
+            ctx.fillRect(440, 120, 200, 4); // Top line
+            ctx.fillRect(440, 1800, 200, 4); // Bottom line
+
+            // Helper for Text Wrapping
+            function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                const words = text.split(' ');
+                let line = '';
+                let currentY = y;
+                for(let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = context.measureText(testLine);
+                    let testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, currentY);
+                        line = words[n] + ' ';
+                        currentY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, currentY);
+                return currentY + lineHeight;
+            }
+
+            // 3. Draw Typography
+            ctx.textAlign = 'center';
+            
+            // Intro
+            ctx.fillStyle = '#8e8e93';
+            ctx.font = 'italic 40px Georgia';
+            let introText = isFutureMode ? "5 Years Later..." : "If I disappear today,";
+            ctx.fillText(introText, 540, 350);
+            ctx.fillText("Remember me as...", 540, 410);
+
+            // Name
+            ctx.fillStyle = accentGrad; // Gold text equivalent
+            ctx.font = 'bold 100px Georgia';
+            wrapText(ctx, userData.name, 540, 580, 900, 110);
+
+            // Achievements
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#d1d1d6';
+            ctx.font = '45px sans-serif';
+            let currentY = 850;
+            
+            const prefixes = ["Mastered: ", "Scaled: ", "Expanded: "];
+            userData.achievements.forEach((ach, i) => {
+                let text = isFutureMode ? (prefixes[i % prefixes.length] + ach) : ach;
+                ctx.fillStyle = accentGrad;
+                ctx.fillText("✦", 150, currentY); // Bullet
+                ctx.fillStyle = '#d1d1d6';
+                currentY = wrapText(ctx, text, 220, currentY, 700, 60) + 40;
+            });
+
+            // Lesson
+            ctx.textAlign = 'center';
+            ctx.fillStyle = accentGrad;
+            ctx.font = 'italic 55px Georgia';
+            currentY = Math.max(currentY + 100, 1350); // Ensure spacing
+            currentY = wrapText(ctx, `"${userData.lesson}"`, 540, currentY, 850, 75);
+
+            // Dream
+            ctx.fillStyle = '#f5f5f7';
+            ctx.font = 'bold 40px sans-serif';
+            ctx.letterSpacing = "2px"; // Only works in some modern canvas, fallback is fine
+            wrapText(ctx, userData.dream.toUpperCase(), 540, currentY + 100, 850, 60);
+
+            // Watermark
+            ctx.fillStyle = '#555555';
+            ctx.font = '30px sans-serif';
+            ctx.fillText("Created with Legacy Card 2.0", 540, 1860);
+
+            // 4. Trigger Download
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `${userData.name.replace(/\s+/g, '_')}_Legacy_Card.png`;
+            link.href = dataUrl;
+            link.click();
+        }
+    </script>
+</body>
+</html>
